@@ -2,7 +2,8 @@
 
 let
   inherit (nixpkgs) pkgs;
-  ocamlPackages = pkgs.ocamlPackages_latest;
+  #ocamlPackages = pkgs.ocamlPackages_latest;
+  ocamlPackages = pkgs.ocaml-ng.ocamlPackages_4_07;
 in
 
 pkgs.stdenv.mkDerivation {
