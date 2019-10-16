@@ -36,10 +36,21 @@ let main () =
     (* should the tokens be printed? *)
     if Cmdline.get_show_tokens () then
       scan lexbuf
+
+    (* compile *)
+    else
+      let ast = Parser.program Lexer.token lexbuf in
+      if Cmdline.get_show_ast () then (
+        print_endline "Abstract syntax tree:";
+        print_endline "============================================================";
+      )
   with
   | Error.Error (loc, msg) ->
      Format.printf "%a error: %s\n" Location.pp_location loc msg;
      exit 1
+  | Parser.Error ->
+     Format.printf "%a error: syntax\n" Location.pp_position lexbuf.L.lex_curr_p;
+     exit 2
 
-(* calls the main function *)
+(* call the main function *)
 let () = main ()
