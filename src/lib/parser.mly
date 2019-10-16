@@ -18,4 +18,9 @@
 %token                 ASSIGN ":="
 %token                 EOF
 
+%start <unit> program
+
 %%
+
+program:
+ | EOF {()}
