@@ -2,11 +2,13 @@
 
 let input_file_name = ref ""
 let input_channel = ref stdin
-let show_tokens = ref true
+let show_tokens = ref false
+let show_ast = ref true
 
 let get_input_file_name () = !input_file_name
 let get_input_channel () = !input_channel
 let get_show_tokens () = !show_tokens
+let get_show_ast ()   = !show_ast
 
 let set_input s =
   try
@@ -24,6 +26,7 @@ let rec usage () =
 
 and options =
   [ "-lex",    Arg.Set show_tokens,    "\tDisplay sequence of lexical symbols"
+  ; "-ast",    Arg.Set show_ast,  "\tDisplay the abstract syntax tree"
   ; "-help",   Arg.Unit usage, "\tDisplay this list of options"
   ; "--help",  Arg.Unit usage, "\tDisplay this list of options"
   ]
