@@ -51,7 +51,11 @@ let main () =
         print_endline (Box.string_of_box boxtree);
         let dotchannel = open_out "ast.dot" in
         output_string dotchannel (Tree.dot_of_tree "AST" tree);
-       )
+       );
+      print_endline "Semantic analysis:";
+      print_endline "============================================================";
+      let t = Semantic.type_check ast in
+      print_endline (Types.show_ty t)
   with
   | Error.Error (loc, msg) ->
      Format.printf "%a error: %s\n" Location.pp_location loc msg;
