@@ -1,6 +1,7 @@
 (library
   (name tigris)
   (wrapped false)
+  (libraries camomile)
   (inline_tests)
   (preprocess
     (staged_pps
@@ -15,4 +16,8 @@
 
 (menhir
   (modules parser)
-  (flags ("--only-tokens")))
+  (flags (--explain          ; explain conflicts in <basename>.conflicts
+          --dump             ; write an .automaton file
+          --graph            ; write a dependency graph to a .dot file
+          --log-grammar 2))
+  (infer true))
