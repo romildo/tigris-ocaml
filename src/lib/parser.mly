@@ -1,5 +1,9 @@
 // parser.mly
 
+%{
+  open Absyn
+%}
+
 %token <bool>          LOGIC
 %token <int>           INTEGER
 %token <string>        STRING
@@ -18,9 +22,9 @@
 %token                 ASSIGN ":="
 %token                 EOF
 
-%start <unit> program
+%start <Absyn.lexp> program
 
 %%
 
 program:
- | EOF {()}
+| EOF {$loc, SeqExp []}
