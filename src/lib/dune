@@ -1,6 +1,7 @@
 (library
   (name tigris)
   (wrapped false)
+  (libraries camomile)
   (inline_tests)
   (preprocess
     (staged_pps
