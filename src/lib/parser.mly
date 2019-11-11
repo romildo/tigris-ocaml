@@ -90,7 +90,7 @@ dec:
  | d=mutualfundecs                                            {$loc, d}
 
 vardec:
- | VAR v=ID t=type_constraint ":=" e=exp                      {VarDec (v, t, e)}
+ | VAR v=ID t=type_constraint "=" e=exp                       {VarDec (v, t, e)}
 
 fundec:
  | FUNCTION f=ID "(" p=params ")" t=type_constraint "=" b=exp {$loc, (f, p, t, b)}

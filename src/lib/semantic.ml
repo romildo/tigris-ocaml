@@ -84,6 +84,10 @@ let rec check_exp ((tenv, venv, in_loop) as env) (pos, exp) =
 
   | A.IntExp _ -> T.INT
 
+  | A.RealExp _ -> T.REAL
+
+  | A.StringExp _ -> T.STRING
+
   | A.WhileExp (test, body) ->
      check_bool (check_exp env test) (loc test);
      ignore (check_exp (tenv, venv, true) body);
@@ -118,6 +122,20 @@ let rec check_exp ((tenv, venv, in_loop) as env) (pos, exp) =
          type_mismatch pos tl tr;
        T.BOOL
     end
+
+  | A.SeqExp exps ->
+     let rec check_seq seq =
+       match seq with
+       | []        -> T.UNIT
+       | [exp]     -> check_exp env exp
+       | exp::rest -> ignore (check_exp env exp); check_seq rest
+     in
+     check_seq exps
+
+  | A.BreakExp ->
+     if not in_loop then
+       Error.error pos "break cannot appear outside a loop";
+     T.UNIT
 
   (* TODO: remaining expression *)
 
