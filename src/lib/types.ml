@@ -13,6 +13,7 @@ let rec coerceable a b =
   | UNIT                      , UNIT                       -> true
   | BOOL                      , BOOL                       -> true
   | INT                       , INT                        -> true
+  | INT                       , REAL                       -> true
   | REAL                      , REAL                       -> true
   | STRING                    , STRING                     -> true
   | _                                                      -> false

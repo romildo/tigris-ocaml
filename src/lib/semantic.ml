@@ -34,6 +34,35 @@ let check_string ty pos = coerce ty T.STRING pos
 
 let check_unit ty pos = coerce ty T.UNIT pos
 
+let check_arithmetic t u pos1 pos2 =
+  if coerceable t T.INT then
+    if coerceable u T.INT then
+      T.INT
+    else if coerceable u T.REAL then
+      T.REAL
+    else
+      Error.error pos2 "type mismatch: int or real expected"
+  else if coerceable t T.REAL then
+    if coerceable u T.INT then
+      T.REAL
+    else if coerceable u T.REAL then
+      T.REAL
+    else
+      Error.error pos2 "type mismatch: int or real expected"
+  else
+    Error.error pos1 "type mismatch: int or real expected"
+
+let check_relational t u pos1 pos2 =
+  if (coerceable t T.INT
+      || coerceable t T.REAL
+      || coerceable t T.STRING
+      || coerceable t T.BOOL) then
+    if coerceable t u || coerceable u t then
+      T.BOOL
+    else
+      type_mismatch pos2 t u
+  else
+    Error.error pos1 "type mismatch: int, real, string or boolean expected"
 
 let look env kind id pos =
   match S.look id env with
@@ -65,6 +94,30 @@ let rec check_exp ((tenv, venv, in_loop) as env) (pos, exp) =
      check_exp env' body
 
   | A.VarExp var -> check_var env var
+
+  | A.AssignExp (var, exp) ->
+     let tvar = check_var env var in
+     let texp = check_exp env exp in
+     coerce texp tvar (loc exp);
+     T.UNIT
+
+  | A.OpExp (op, l, r) ->
+    let tl = check_exp env l in
+    let tr = check_exp env r in
+    begin match op with
+    | A.PlusOp | A.MinusOp | A.TimesOp | A.DivOp | A.ModOp | A.PowOp ->
+       check_arithmetic tl tr (loc l) (loc r)
+    | A.LtOp | A.LeOp | A.GtOp | A.GeOp ->
+       check_relational tl tr (loc l) (loc r)
+    | A.AndOp | A.OrOp ->
+       check_bool tl (loc l);
+       check_bool tr (loc r);
+       T.BOOL
+    | A.EqOp | A.NeOp ->
+       if not (coerceable tl tr || coerceable tr tl) then
+         type_mismatch pos tl tr;
+       T.BOOL
+    end
 
   (* TODO: remaining expression *)
 

@@ -2,14 +2,16 @@
 
 let
   inherit (nixpkgs) pkgs;
+  ocamlPackages = pkgs.ocamlPackages;
   #ocamlPackages = pkgs.ocamlPackages_latest;
-  ocamlPackages = pkgs.ocaml-ng.ocamlPackages_4_07;
+  #ocamlPackages = pkgs.ocaml-ng.ocamlPackages_4_07;
 in
 
 pkgs.stdenv.mkDerivation {
   name = "my-ocaml-env-0";
   buildInputs = [
     ocamlPackages.dune
+    ocamlPackages.earlybird
     ocamlPackages.findlib
     ocamlPackages.menhir
     ocamlPackages.merlin

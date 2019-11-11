@@ -5,7 +5,7 @@ open Location
 module S = Symbol
 
 type operator =
-  | PlusOp | MinusOp | TimesOp | DivOp
+  | PlusOp | MinusOp | TimesOp | DivOp | ModOp | PowOp
   | EqOp | NeOp
   | LtOp | LeOp | GtOp | GeOp
   | OrOp | AndOp
