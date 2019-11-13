@@ -137,6 +137,22 @@ let rec check_exp ((tenv, venv, in_loop) as env) (pos, exp) =
        Error.error pos "break cannot appear outside a loop";
      T.UNIT
 
+  | A.IfExp (test, e1, e2optional) ->
+     let ttest = check_exp env test in
+     let t1 = check_exp env e1 in
+     check_bool ttest (loc test);
+     begin match e2optional with
+     | None -> check_unit t1 (loc e1); T.UNIT
+     | Some e2 ->
+        let t2 = check_exp env e2 in
+        if coerceable t1 t2 then
+          t2
+        else if coerceable t2 t1 then
+          t1
+        else
+          type_mismatch (loc e2) t1 t2
+     end
+
   (* TODO: remaining expression *)
 
   | _ ->

@@ -51,7 +51,7 @@ exp:
  | WHILE t=exp DO b=exp                                       {$loc, WhileExp (t, b)}
  | BREAK                                                      {$loc, BreakExp}
  | LET d=decs IN e=exp                                        {$loc, LetExp (d, e)}
- | IF t=exp THEN x=exp ELSE y=option(exp)                     {$loc, IfExp (t, x, y)}
+ | IF t=exp THEN x=exp y=option(ELSE y=exp {y})               {$loc, IfExp (t, x, y)}
  | f=ID "(" a=args ")"                                        {$loc, CallExp (f, a)}
  | "(" es=exps ")"                                            {$loc, SeqExp es}
 
