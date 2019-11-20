@@ -196,15 +196,20 @@ and check_dec ((tenv, venv, in_loop) as env) (pos, dec) =
      (tenv, venv', in_loop)
 
   | A.MutualTypeDecs tdecs ->
+     (* add a new type name (with undefined structure) to sumbol table *)
      let add_new_type tenv (_, (tname, _)) =
        S.enter tname (T.NAME (tname, ref None)) tenv in
+     (* set the type structure for a given type name in the symbol table *)
      let fix_new_type tenv (tloc, (tname, tcons)) =
        match tylook tenv tname tloc with
-       | T.NAME (_, cell) -> cell := Some (check_tcons tenv tcons)
-       | _ -> Error.fatal "fix_type"
+       | T.NAME (_, cell) -> cell := Some (check_type_constructor tenv tcons)
+       | _ -> Error.fatal "fix_new_type"
      in
+     (* add all the type names to the symbol table *)
      let tenv' = List.fold_left add_new_type tenv tdecs in
+     (* check the type constructors and fix the new entries in the symbol table *)
      List.iter (fix_new_type tenv') tdecs;
+     (* the new environment *)
      (tenv', venv, in_loop)
 
   | _ ->
@@ -217,7 +222,8 @@ and check_var ((tenv,venv,in_loop) as env) (pos,var) =
   | _ ->
      Error.fatal "unimplemented"
 
-and check_tcons tenv (pos, tcons) =
+(* check type constructors *)
+and check_type_constructor tenv (pos, tcons) =
   match tcons with
   | A.NameCons tname -> tylook tenv tname pos
 
