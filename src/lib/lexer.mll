@@ -60,6 +60,8 @@ rule token = parse
   | "let"          { LET }
   | "then"         { THEN }
   | "var"          { VAR }
+  | "function"     { FUNCTION }
+  | "type"         { TYPE }
   | "while"        { WHILE }
   | ":="           { ASSIGN }
   | '|'            { OR }

@@ -77,6 +77,10 @@ let varlook venv id pos =
   | E.VarEntry t -> t
   | E.FunEntry _ -> misdefined pos "variable" id
 
+let funlook venv id pos =
+  match look venv "function" id pos with
+  | E.VarEntry _ -> misdefined pos "function" id
+  | E.FunEntry (params, result) -> (params, result)
 
 let rec check_exp ((tenv, venv, in_loop) as env) (pos, exp) =
   match exp with
@@ -153,6 +157,19 @@ let rec check_exp ((tenv, venv, in_loop) as env) (pos, exp) =
           type_mismatch (loc e2) t1 t2
      end
 
+  | A.CallExp (f, args) ->
+     let (params, result) = funlook venv f pos in
+     let rec check_args params args =
+       match params, args with
+       | p::params_rest , a::args_rest ->
+          coerce (check_exp env a) p (loc a);
+          check_args params_rest args_rest
+       | [] , [] -> result
+       | [] , _ -> Error.error pos "too much arguments"
+       | _ , [] -> Error.error pos "too few arguments"
+     in
+     check_args params args
+
   (* TODO: remaining expression *)
 
   | _ ->
@@ -173,6 +190,11 @@ and check_dec ((tenv, venv, in_loop) as env) (pos, dec) =
      let venv' = S.enter name (E.VarEntry tvar) venv in
      (tenv,venv',in_loop)
 
+  | A.MutualFunctionDecs fdecs ->
+     let venv' = List.fold_left (check_signature tenv) venv fdecs in
+     List.iter (check_body tenv venv') fdecs;
+     (tenv, venv', in_loop)
+
   | _ ->
      Error.fatal "unimplemented"
 
@@ -183,6 +205,39 @@ and check_var ((tenv,venv,in_loop) as env) (pos,var) =
   | _ ->
      Error.fatal "unimplemented"
 
+and check_signature tenv venv (_, (name, params, result_opt, _)) =
+  (* check duplicate parameter names *)
+  ignore
+    (List.fold_left
+       (fun all (ploc,(pname,_)) ->
+         if List.mem pname all then
+           Error.error ploc "duplicate parameter name %s" (S.name pname)
+         else
+           (pname::all))
+       []
+       params);
+  (* calculate type of parameters *)
+  let tparams = List.map (fun (ploc,(_,ptype)) -> tylook tenv ptype ploc) params
+  (* calculate type of result *)
+  and tresult =
+    match result_opt with
+    | Some (pos,result) -> tylook tenv result pos
+    | None -> T.UNIT
+  in
+  (* add function name into symbol table *)
+  S.enter name (E.FunEntry (tparams, tresult)) venv
+
+and check_body tenv venv (pos, (name, params, _, body)) =
+  let (formals, result) = funlook venv name pos in
+  let venv' =
+    List.fold_left2
+      (fun venv (_,(name,_)) t -> S.enter name (E.VarEntry t) venv)
+      venv
+      params
+      formals
+  in
+  let tbody = check_exp (tenv, venv', false) body in
+  coerce tbody result (loc body)
 
 let type_check program =
   check_exp (E.base_tenv, E.base_venv, false) program

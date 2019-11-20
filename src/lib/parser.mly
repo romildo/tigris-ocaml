@@ -82,15 +82,28 @@ var:
  | x=ID                                                       {$loc, SimpleVar x}
 
 decs:
- | ds=list(dec)                                               {ds}
+ | ds=decs_beginning_with_variable                            {ds}
+ | ds=decs_beginning_with_function                            {ds}
+ | ds=decs_beginning_with_type                                {ds}
 
-dec:
- | d=vardec                                                   {$loc, d}
- | d=mutualtypedecs                                           {$loc, d}
- | d=mutualfundecs                                            {$loc, d}
+decs_beginning_with_variable:
+ | d=vardec                                                   {d :: []}
+ | d=vardec ds=decs_beginning_with_variable                   {d :: ds}
+ | d=vardec ds=decs_beginning_with_function                   {d :: ds}
+ | d=vardec ds=decs_beginning_with_type                       {d :: ds}
+
+decs_beginning_with_function:
+ | d=mutualfundecs                                            {d :: []}
+ | d=mutualfundecs ds=decs_beginning_with_variable            {d :: ds}
+ | d=mutualfundecs ds=decs_beginning_with_type                {d :: ds}
+
+decs_beginning_with_type:
+ | d=mutualtypedecs                                           {d :: []}
+ | d=mutualtypedecs ds=decs_beginning_with_variable           {d :: ds}
+ | d=mutualtypedecs ds=decs_beginning_with_function           {d :: ds}
 
 vardec:
- | VAR v=ID t=type_constraint "=" e=exp                       {VarDec (v, t, e)}
+ | VAR v=ID t=type_constraint "=" e=exp                       {$loc, VarDec (v, t, e)}
 
 fundec:
  | FUNCTION f=ID "(" p=params ")" t=type_constraint "=" b=exp {$loc, (f, p, t, b)}
@@ -99,10 +112,10 @@ typedec:
  | TYPE t=ID "=" ty=type_constructor                          {$loc, (t, ty)}
 
 mutualfundecs:
- | ds=nonempty_list(fundec)                                   {MutualFunctionDecs ds}
+ | ds=nonempty_list(fundec)                                   {$loc, MutualFunctionDecs ds}
 
 mutualtypedecs:
- | ds=nonempty_list(typedec)                                  {MutualTypeDecs ds}
+ | ds=nonempty_list(typedec)                                  {$loc, MutualTypeDecs ds}
 
 type_constraint:
  | c=option(":" t=ID {$loc(t), t})                            {c}
@@ -114,4 +127,4 @@ params:
  | f=separated_list(",", param)                               {f}
 
 param:
- | n=ID "=" t=ID                                              {$loc, (n, t)}
+ | n=ID ":" t=ID                                              {$loc, (n, t)}
