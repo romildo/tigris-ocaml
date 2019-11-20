@@ -195,6 +195,18 @@ and check_dec ((tenv, venv, in_loop) as env) (pos, dec) =
      List.iter (check_body tenv venv') fdecs;
      (tenv, venv', in_loop)
 
+  | A.MutualTypeDecs tdecs ->
+     let add_new_type tenv (_, (tname, _)) =
+       S.enter tname (T.NAME (tname, ref None)) tenv in
+     let fix_new_type tenv (tloc, (tname, tcons)) =
+       match tylook tenv tname tloc with
+       | T.NAME (_, cell) -> cell := Some (check_tcons tenv tcons)
+       | _ -> Error.fatal "fix_type"
+     in
+     let tenv' = List.fold_left add_new_type tenv tdecs in
+     List.iter (fix_new_type tenv') tdecs;
+     (tenv', venv, in_loop)
+
   | _ ->
      Error.fatal "unimplemented"
 
@@ -204,6 +216,12 @@ and check_var ((tenv,venv,in_loop) as env) (pos,var) =
 
   | _ ->
      Error.fatal "unimplemented"
+
+and check_tcons tenv (pos, tcons) =
+  match tcons with
+  | A.NameCons tname -> tylook tenv tname pos
+
+  | _ -> Error.fatal "unimplemented"
 
 and check_signature tenv venv (_, (name, params, result_opt, _)) =
   (* check duplicate parameter names *)
