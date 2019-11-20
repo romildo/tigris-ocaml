@@ -1,0 +1,13 @@
+{
+    "name": "Debug Server",
+    "type": "ocaml-debugger",
+    "request": "launch",
+    "program": "${workspaceRoot}/_build/default/src/bin/driver.bc",
+    "console": "internalConsole",
+    "dotMerlins": ["${workspaceRoot}/.merlin"],
+    "noDebug": false,
+    "stopOnEntry": false,
+    "env": {
+        "OCAMLRUNPARAM": "b"
+    }
+}
