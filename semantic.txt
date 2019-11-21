@@ -45,3 +45,25 @@ Semantics of tigris
   - verificar se a segunda alternativa está presente:
     1) sim: verificar se os tipos de e1 e e2 são compatíveis, e este será o tipo da resposta
     2) não: verificar se e1 é do tipo unit, que é o tipo da resposta
+
+
+* Declarações de tipo
+
+  let
+    type t1 = t2
+    type t2 = int
+    type t3 = t1
+    var x : t1 = 2
+    var y : t2 = x
+    type t4 = t1
+    var z : t4 = x
+  in
+    x + y + z
+
+
+
+  let type ponto1 = { x: real, y: real }
+      type ponto2 = { x: real, y: real }
+      type ponto3 = ponto2
+      type vetor = array of int
+  in ...

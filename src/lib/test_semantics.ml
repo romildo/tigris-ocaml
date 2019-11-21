@@ -422,3 +422,90 @@ let%expect_test _ =
           └─ VarExp
              └─ SimpleVar alpha
     :2.63-2.73 error: undefined function impar |}];
+
+  check {|let
+            type t = int
+            var x:t = 45
+          in
+            x
+         |};
+  [%expect{|
+    LetExp
+    ├─ Decls
+    │  ├─ MutualTypDecs
+    │  │  └─ TypeDec
+    │  │     ├─ t
+    │  │     └─ NameCons
+    │  │        └─ int
+    │  └─ VarDec
+    │     ├─ x
+    │     ├─ t
+    │     └─ IntExp 45
+    └─ VarExp
+       └─ SimpleVar x
+    NAME t |}];
+
+  check {| let
+              type t1 = t2
+              type t2 = int
+              type t3 = t1
+              var x : t1 = 2
+              var y : t2 = x
+              type t4 = t1
+              var z : t4 = x
+           in
+              x + y + z
+         |};
+  [%expect{|
+    LetExp
+    ├─ Decls
+    │  ├─ MutualTypDecs
+    │  │  ├─ TypeDec
+    │  │  │  ├─ t1
+    │  │  │  └─ NameCons
+    │  │  │     └─ t2
+    │  │  ├─ TypeDec
+    │  │  │  ├─ t2
+    │  │  │  └─ NameCons
+    │  │  │     └─ int
+    │  │  └─ TypeDec
+    │  │     ├─ t3
+    │  │     └─ NameCons
+    │  │        └─ t1
+    │  ├─ VarDec
+    │  │  ├─ x
+    │  │  ├─ t1
+    │  │  └─ IntExp 2
+    │  ├─ VarDec
+    │  │  ├─ y
+    │  │  ├─ t2
+    │  │  └─ VarExp
+    │  │     └─ SimpleVar x
+    │  ├─ MutualTypDecs
+    │  │  └─ TypeDec
+    │  │     ├─ t4
+    │  │     └─ NameCons
+    │  │        └─ t1
+    │  └─ VarDec
+    │     ├─ z
+    │     ├─ t4
+    │     └─ VarExp
+    │        └─ SimpleVar x
+    └─ OpExp +
+       ├─ OpExp +
+       │  ├─ VarExp
+       │  │  └─ SimpleVar x
+       │  └─ VarExp
+       │     └─ SimpleVar y
+       └─ VarExp
+          └─ SimpleVar z
+    INT |}];
+
+  check {| let
+              type t1 = t2
+              var between = "foo"
+              type t2 = int
+           in
+              between
+         |};
+  [%expect{| |}];
