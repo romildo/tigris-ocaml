@@ -22,6 +22,7 @@
 %token                 ASSIGN ":="
 %token                 EOF
 
+%right     THEN ELSE DO IN
 %nonassoc  ASSIGN
 %left      OR
 %left      AND
@@ -30,7 +31,6 @@
 %left      TIMES DIV MOD
 %right     POW
 %nonassoc  UMINUS
-%nonassoc  DO IN
 
 %start <Absyn.lexp> program
 
