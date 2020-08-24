@@ -43,15 +43,19 @@ let main () =
       if Cmdline.get_show_ast () then (
         print_endline "Abstract syntax tree:";
         print_endline "============================================================";
-        print_endline (Absyn.show_lexp ast);
+        (* print_endline (Absyn.show_lexp ast); *)
         let tree = Tree.map Absyntotree.node_txt (Absyntotree.tree_of_lexp ast) in
-        print_endline (Tree.string_of_tree tree);
-        print_newline ();
+        (* print_endline (Tree.string_of_tree tree);
+         * print_newline (); *)
         let boxtree = Tree.box_of_tree tree in
         print_endline (Box.string_of_box boxtree);
         let dotchannel = open_out "ast.dot" in
         output_string dotchannel (Tree.dot_of_tree "AST" tree);
-       )
+       );
+      print_endline "Semantic analysis:";
+      print_endline "============================================================";
+      let t = Semantic.type_check ast in
+      print_endline (Types.show_ty t)
   with
   | Error.Error (loc, msg) ->
      Format.printf "%a error: %s\n" Location.pp_location loc msg;

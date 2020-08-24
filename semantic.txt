@@ -1,0 +1,69 @@
+Semantics of tigris
+===================
+
+* Operaçoes binárias
+
+  x op y
+
+- checar x e y, obtendo os seus respectivos tipos tx, ty
+- verificar categoria do operador:
+  1) se for aritmética
+     - tx e ty devem ser tipos numéricos
+     - se ambos forem inteiros, então o resultado é inteiro,
+     - caso contrário, o resultado é real
+  2) se for lógica
+     - tx e ty devem ser booleanos
+     - o resultado é booleano
+  3) se for igual/diferente
+     - tx e ty devem ser compatíveis
+     - o resultado é booleano
+  4) se for relacional
+     - tx e ty devem ser int, real, bool, string
+     - tx e ty devem ser compatíveis
+     - o resultado é booleano
+
+* Expressão sequência
+
+  ( e1; e2; ...; en )     onde n >= 0
+
+  - checar cada uma das subexpressões
+  - se n > 0, a resposta é do tipo da última (en)
+  - caso contrário, a resposta é do tipo unit
+
+* Break
+
+  break
+
+  - checar se está no corpo de algum laço de repetição
+  - resposta do tipo unit
+
+* If
+
+  if test then e1 else e2
+
+  - checar test, e verificar se ele é booleano, reportando erro caso não seja
+  - verificar se a segunda alternativa está presente:
+    1) sim: verificar se os tipos de e1 e e2 são compatíveis, e este será o tipo da resposta
+    2) não: verificar se e1 é do tipo unit, que é o tipo da resposta
+
+
+* Declarações de tipo
+
+  let
+    type t1 = t2
+    type t2 = int
+    type t3 = t1
+    var x : t1 = 2
+    var y : t2 = x
+    type t4 = t1
+    var z : t4 = x
+  in
+    x + y + z
+
+
+
+  let type ponto1 = { x: real, y: real }
+      type ponto2 = { x: real, y: real }
+      type ponto3 = ponto2
+      type vetor = array of int
+  in ...
